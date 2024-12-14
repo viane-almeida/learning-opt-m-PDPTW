@@ -45,48 +45,172 @@ class IO:
         self.num_vehicles = 0
         self.num_calls = 0
 
-        # information about each vehicle (index starts from 1! the '-1' here is just to fill space)
-        self.vehicle_home_node = [-1]
-        self.vehicle_starting_time = [-1]
-        self.vehicle_capacity = [-1]
-        self.vehicle_compatible_calls = [-1]   # some vehicles cannot transport some cargoes
+        # information about each vehicle (index will start from 1!)
+        self.vehicle_home_node = []
+        self.vehicle_starting_time = []
+        self.vehicle_capacity = []
+        self.vehicle_compatible_calls = []   # some vehicles cannot transport some cargoes
 
-        # information about each call (index starts from 1! the '-1' here is just to fill space)
-        self.call_origin = [-1]
-        self.call_destination = [-1]
-        self.call_size = [-1]
-        self.call_cost_not_transporting = [-1]
-        self.call_pickup_lb = [-1]
-        self.call_pickup_ub = [-1]
-        self.call_delivery_lb = [-1]
-        self.call_delivery_ub = [-1]
+        # information about each call (index will start from 1!)
+        self.call_origin = []
+        self.call_destination = []
+        self.call_size = []
+        self.call_cost_not_transporting = []
+        self.call_pickup_lb = []
+        self.call_pickup_ub = []
+        self.call_delivery_lb = []
+        self.call_delivery_ub = []
 
-        # will hold a travel time matrix for each vehicle (after parsing the input)
-        self.travel_time_matrix = []
-        self.travel_cost_matrix = []
+        # will hold a travel time/cost matrix FOR EACH VEHICLE (after parsing the input)
+        self.travel_time_matrices = []
+        self.travel_cost_matrices = []
 
         # time (in hours) and cost (in euro) matrices (index: vehicle x call)
-        self.load_time_matrix = []
-        self.load_cost_matrix = []
-        self.unload_time_matrix = []
-        self.unload_cost_matrix = []
+        self.call_load_times_per_vehicle = []
+        self.call_unload_times_per_vehicle = []
+        self.call_load_costs_per_vehicle = []
+        self.call_unload_costs_per_vehicle = []
 
 
     def read_instance(self, file_name):
-        
-        i = 0
-        for line in open(file_name):
-            i = i+1
 
-            # clear leading/trailing white space
-            li = line.strip()
+        with open(file_name) as f:
 
-            # skip comment lines!
-            if not li.startswith("%"):
-                print(line)
+            # 1. read number of nodes
+            line = next(f)
+            
+            while line.startswith('%'):   # skip comment lines
+                line = next(f)
 
-            if (i > 10):
-                return
+            self.num_nodes = int(line)
+
+            # 2. read number of vehicles
+            line = next(f)
+
+            while line.startswith('%'):
+                line = next(f)
+
+            self.num_vehicles = int(line)
+
+            # 3. initialize object attributes with proper size lists/matrices
+            self.create_vehicle_structures()
+
+            # 4. for each vehicle: save home node, starting time, capacity
+            line = next(f)
+
+            while line.startswith('%'):
+                line = next(f)
+
+            v = 1
+            while v <= self.num_vehicles:
+
+                line = line.strip()    #cuts any leading/trailing space
+                line_info = line.split(',')   # list
+
+                self.vehicle_home_node[v] = line_info[1]
+                self.vehicle_starting_time[v] = line_info[2]
+                self.vehicle_capacity[v] = line_info[3]
+
+                # read next line
+                line = next(f)
+                v += 1
+
+            # 5. read number of calls
+            while line.startswith('%'):
+                line = next(f)
+
+            self.num_calls = int(line)
+
+            # 6. initialize remaining object attributes with proper size lists/matrices
+            self.create_call_structures()
+
+            # 7. read a list of calls that can be transported using each vehicle
+
+            # 8. read information about each call
+
+            # 9. read information about travel time and costs for each vehicle, and each origin x destination pairs
+
+            # 10. read load time and cost, as well as unload time and costs, for each vehicle x call pairs
+
+        print("[IO] input instance file parsed successfully")
+
+        return
+
+
+    def create_vehicle_structures(self):
+        """
+        Update first object attributes with lists of proper sizes
+        NB! Padding all lists with a dummy "-1" to keep consistent indexing,
+        e.g. vehicle_capacity[2] corresponds to vehicle #2,
+        """
+        self.vehicle_home_node = [-1] * (self.num_vehicles+1)
+        self.vehicle_starting_time = [-1] * (self.num_vehicles+1)
+        self.vehicle_capacity = [-1] * (self.num_vehicles+1)
+        self.vehicle_compatible_calls = [-1] * (self.num_vehicles+1)
+
+        self.vehicle_compatible_calls = [-1] * (self.num_vehicles+1)
+        for i in range(1, self.num_vehicles+1):
+            self.vehicle_compatible_calls[i] = []
+
+        return
+
+
+    def create_call_structures(self):
+        """
+        Update remaining object attributes with lists of proper sizes
+        NB! Padding all lists with a dummy "-1" to keep consistent indexing,
+        e.g. call_size[2] corresponds to call #2,
+        """
+
+        self.call_origin = [-1] * (self.num_calls+1)
+        self.call_destination = [-1] * (self.num_calls+1)
+        self.call_size = [-1] * (self.num_calls+1)
+        self.call_cost_not_transporting =  [-1] * (self.num_calls+1)
+        self.call_pickup_lb = [-1] * (self.num_calls+1)
+        self.call_pickup_ub = [-1] * (self.num_calls+1)
+        self.call_delivery_lb = [-1] * (self.num_calls+1)
+        self.call_delivery_ub = [-1] * (self.num_calls+1)
+
+        ########################################################################
+        # one travel time matrix FOR EACH VEHICLE
+        self.travel_time_matrices = [-1] * (self.num_vehicles+1)
+        for i in range(1, self.num_vehicles+1):
+            # vehicle i gets a  num_nodes x num_nodes matrix
+            self.travel_time_matrices[i] = [ [-1]*(self.num_nodes+1) for tmp in range(self.num_nodes+1) ]
+
+        # one travel cost matrix FOR EACH VEHICLE
+        self.travel_cost_matrices = [-1] * (self.num_vehicles+1)
+        for i in range(1, self.num_vehicles+1):
+            # vehicle i gets a  num_nodes x num_nodes matrix
+            self.travel_cost_matrices[i] = [ [-1]*(self.num_nodes+1) for tmp in range(self.num_nodes+1) ]
+
+        ########################################################################
+        # one list of call load times FOR EACH VEHICLE
+        self.call_load_times_per_vehicle = [-1] * (self.num_vehicles+1)
+        for i in range(1, self.num_vehicles+1):
+            # vehicle i gets a list of length num_calls+1
+            self.call_load_times_per_vehicle[i] = [-1]*(self.num_calls+1) 
+
+        # one list of call unload times FOR EACH VEHICLE
+        self.call_unload_times_per_vehicle = [-1] * (self.num_vehicles+1)
+        for i in range(1, self.num_vehicles+1):
+            # vehicle i gets a list of length num_calls+1
+            self.call_unload_times_per_vehicle[i] = [-1]*(self.num_calls+1) 
+
+        # one list of call load costs FOR EACH VEHICLE
+        self.call_load_costs_per_vehicle = [-1] * (self.num_vehicles+1)
+        for i in range(1, self.num_vehicles+1):
+            # vehicle i gets a list of length num_calls+1
+            self.call_load_costs_per_vehicle[i] = [-1]*(self.num_calls+1) 
+
+        # one list of call unload costs FOR EACH VEHICLE
+        self.call_unload_costs_per_vehicle = [-1] * (self.num_vehicles+1)
+        for i in range(1, self.num_vehicles+1):
+            # vehicle i gets a list of length num_calls+1
+            self.call_unload_costs_per_vehicle[i] = [-1]*(self.num_calls+1) 
+
+        return
+
 
 
 
