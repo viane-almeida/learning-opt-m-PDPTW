@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 
-""" IO module for parsing mPDPTW instances
+""" InstanceReader module for parsing mPDPTW instances
 
 
 __author__ = ["Flaviane Almeida"]
@@ -32,9 +32,9 @@ __version__ = "0.0.1"
 __email__ = "viane202@hotmail.com"
 """
 
-class IO:
+class InstanceReader:
     """
-    Class for input/output operations
+    Class for handling the input instance file
     """
 
     def __init__(self):
@@ -125,16 +125,58 @@ class IO:
             self.create_call_structures()
 
             # 7. read a list of calls that can be transported using each vehicle
+            for v in range(1, self.num_vehicles+1):
+                line = next(f)
+                while line.startswith('%'):
+                    line = next(f)
+                line_info = line.split(',')
+
+                # the first number is again the vehicle index, so we skip it
+                for call in range(1,len(line_info)):
+                    self.vehicle_compatible_calls[v].append(int(line_info[call]))
 
             # 8. read information about each call
+            for c in range(1, self.num_calls+1):
+                line = next(f)
+                while line.startswith('%'):
+                    line = next(f)
+                line_info = line.split(',')
+
+                self.call_origin[c] = int(line_info[1])
+                self.call_destination[c] = int(line_info[2])
+                self.call_size[c] = int(line_info[3])
+                self.call_cost_not_transporting[c] = int(line_info[4])
+                self.call_pickup_lb[c] = int(line_info[5])
+                self.call_pickup_ub[c] = int(line_info[6])
+                self.call_delivery_lb[c] = int(line_info[7])
+                self.call_delivery_ub[c] = int(line_info[8])
 
             # 9. read information about travel time and costs for each vehicle, and each origin x destination pairs
+            for i in range(1, self.num_nodes+1):
+                for j in range(1, self.num_nodes+1):
+                    for v in range(1, self.num_vehicles+1):
+                        line = next(f)
+                        while line.startswith('%'):
+                            line = next(f)
+                        line_info = line.split(',')
+
+                        self.travel_time_matrices[v][i][j] = int(line_info[3])
+                        self.travel_cost_matrices[v][i][j] = int(line_info[4])
 
             # 10. read load time and cost, as well as unload time and costs, for each vehicle x call pairs
+            for v in range(1, self.num_vehicles+1):
+                for c in range(1, self.num_calls+1):
+                    line = next(f)
+                    while line.startswith('%'):
+                        line = next(f)
+                    line_info = line.split(',')
+
+                    self.call_load_times_per_vehicle[v][c] = int(line_info[2])
+                    self.call_unload_times_per_vehicle[v][c] = int(line_info[3])
+                    self.call_load_costs_per_vehicle[v][c] = int(line_info[4])
+                    self.call_unload_costs_per_vehicle[v][c] = int(line_info[5])
 
         print("[IO] input instance file parsed successfully")
-
-        return
 
 
     def create_vehicle_structures(self):
@@ -151,8 +193,6 @@ class IO:
         self.vehicle_compatible_calls = [-1] * (self.num_vehicles+1)
         for i in range(1, self.num_vehicles+1):
             self.vehicle_compatible_calls[i] = []
-
-        return
 
 
     def create_call_structures(self):
@@ -208,14 +248,3 @@ class IO:
         for i in range(1, self.num_vehicles+1):
             # vehicle i gets a list of length num_calls+1
             self.call_unload_costs_per_vehicle[i] = [-1]*(self.num_calls+1) 
-
-        return
-
-
-
-
-input_file_name = "input/Call_7_Vehicle_3.txt"
-# TO DO: read input file name from terminal
-
-my_io = IO()
-my_io.read_instance(input_file_name)
