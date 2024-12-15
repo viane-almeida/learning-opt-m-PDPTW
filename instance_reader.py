@@ -76,7 +76,7 @@ class InstanceReader:
 
         with open(file_name) as f:
 
-            # 1. read number of nodes
+            # 1. READ NUMBER OF NODES
             line = next(f)
             
             while line.startswith('%'):   # skip comment lines
@@ -84,7 +84,7 @@ class InstanceReader:
 
             self.num_nodes = int(line)
 
-            # 2. read number of vehicles
+            # 2. READ NUMBER OF VEHICLES
             line = next(f)
 
             while line.startswith('%'):
@@ -92,10 +92,10 @@ class InstanceReader:
 
             self.num_vehicles = int(line)
 
-            # 3. initialize object attributes with proper size lists/matrices
+            # 3. INITIALIZE OBJECT ATTRIBUTES WITH PROPER SIZE LISTS/MATRICES
             self.create_vehicle_structures()
 
-            # 4. for each vehicle: save home node, starting time, capacity
+            # 4. FOR EACH VEHICLE: SAVE HOME NODE, STARTING TIME, CAPACITY
             line = next(f)
 
             while line.startswith('%'):
@@ -115,16 +115,16 @@ class InstanceReader:
                 line = next(f)
                 v += 1
 
-            # 5. read number of calls
+            # 5. READ NUMBER OF CALLS
             while line.startswith('%'):
                 line = next(f)
 
             self.num_calls = int(line)
 
-            # 6. initialize remaining object attributes with proper size lists/matrices
+            # 6. INITIALIZE REMAINING OBJECT ATTRIBUTES WITH PROPER SIZE LISTS/MATRICES
             self.create_call_structures()
 
-            # 7. read a list of calls that can be transported using each vehicle
+            # 7. READ A LIST OF CALLS THAT CAN BE TRANSPORTED USING EACH VEHICLE
             for v in range(1, self.num_vehicles+1):
                 line = next(f)
                 while line.startswith('%'):
@@ -135,7 +135,7 @@ class InstanceReader:
                 for call in range(1,len(line_info)):
                     self.vehicle_compatible_calls[v].append(int(line_info[call]))
 
-            # 8. read information about each call
+            # 8. READ INFORMATION ABOUT EACH CALL
             for c in range(1, self.num_calls+1):
                 line = next(f)
                 while line.startswith('%'):
@@ -151,7 +151,7 @@ class InstanceReader:
                 self.call_delivery_lb[c] = int(line_info[7])
                 self.call_delivery_ub[c] = int(line_info[8])
 
-            # 9. read information about travel time and costs for each vehicle, and each origin x destination pairs
+            # 9. READ INFORMATION ABOUT TRAVEL TIME AND COSTS FOR EACH VEHICLE, AND EACH ORIGIN X DESTINATION PAIRS
             for i in range(1, self.num_nodes+1):
                 for j in range(1, self.num_nodes+1):
                     for v in range(1, self.num_vehicles+1):
@@ -163,7 +163,7 @@ class InstanceReader:
                         self.travel_time_matrices[v][i][j] = int(line_info[3])
                         self.travel_cost_matrices[v][i][j] = int(line_info[4])
 
-            # 10. read load time and cost, as well as unload time and costs, for each vehicle x call pairs
+            # 10. READ LOAD TIME AND COST, AS WELL AS UNLOAD TIME AND COSTS, FOR EACH VEHICLE X CALL PAIRS
             for v in range(1, self.num_vehicles+1):
                 for c in range(1, self.num_calls+1):
                     line = next(f)

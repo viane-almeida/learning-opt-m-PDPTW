@@ -33,7 +33,7 @@ __email__ = "viane202@hotmail.com"
 """
 
 from instance_reader import InstanceReader
-
+from solution import Solution
 
 def main():
 	# TO DO: read input file name from terminal
@@ -41,6 +41,8 @@ def main():
 
 	my_reader = InstanceReader()
 	my_reader.read_instance(input_file_name)
+
+	solution = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6")
 
 
 if __name__ == "__main__":
