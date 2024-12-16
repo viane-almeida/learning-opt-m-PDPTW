@@ -134,9 +134,11 @@ class Solution:
         print(self.vehicles_node_routes[1:])
 
 
-    def fleet_cost(self):
+    def fleet_cost(self, include_node_costs=True):
         """
         Evaluate the first sum in the objective function (own fleet)
+        If the argument is False, we do not include the load/unload costs at
+        each node.
         """
         fleet = 0.0
 
@@ -144,7 +146,11 @@ class Solution:
         for v in range(1, self.instance.num_vehicles+1):
 
             route_size = len(self.vehicles_node_routes[v])
-            
+
+            # mask flagging calls already taken in the route (is it pickup or delivery)
+            pickup = [True] * (self.instance.num_calls+1)
+
+            # 1. TRAVELING COST
             # if route_size == 1, this vehicle stays at its home node
             # otherwise, we compute and add the travel costs of each leg in the route
             if (route_size > 1):
@@ -154,10 +160,26 @@ class Solution:
 
                     #print("cost from " + str(source) + " to " + str(dest) )
                     leg_cost = self.instance.travel_cost_matrices[v][source][dest]
+                    fleet += leg_cost
                     #print("leg_cost = " + str(leg_cost))
 
-                    fleet += leg_cost
+                    # 2. PICKUP/DELIVERY COSTS (NOT INCLUDED IF THE ARGUMENT IS FALSE)
+                    if include_node_costs:
 
+                        # get which call we are handling
+                        c = self.vehicles_call_sequence[v][i]
+
+                        if pickup[c] == True:   # pickup
+                            
+                            #print("cost of pickup of call #" + str(c))
+                            #print(self.instance.call_load_costs_per_vehicle[v][c])
+                            fleet += self.instance.call_load_costs_per_vehicle[v][c]
+                            pickup[c] = False
+
+                        else:                    # delivery
+                            #print("cost of delivery of call #" + str(c))
+                            #print(self.instance.call_unload_costs_per_vehicle[v][c])
+                            fleet += self.instance.call_unload_costs_per_vehicle[v][c]
         return(fleet)
 
 
@@ -177,9 +199,11 @@ class Solution:
         return(spotcharter)
 
 
-    def total_cost(self):
+    def total_cost(self, include_node_costs=True):
         """
-        Evaluate objective function corresponding to this solution
+        Evaluate objective function corresponding to this solution.
+        If the argument is False, we do not include the load/unload costs at
+        each node.
         """
         
-        return(self.fleet_cost() + self.spotcharter_cost())
+        return(self.fleet_cost(include_node_costs) + self.spotcharter_cost())

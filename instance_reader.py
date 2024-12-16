@@ -172,8 +172,9 @@ class InstanceReader:
                     line_info = line.split(',')
 
                     self.call_load_times_per_vehicle[v][c] = int(line_info[2])
-                    self.call_unload_times_per_vehicle[v][c] = int(line_info[3])
-                    self.call_load_costs_per_vehicle[v][c] = int(line_info[4])
+                    self.call_load_costs_per_vehicle[v][c] = int(line_info[3])
+
+                    self.call_unload_times_per_vehicle[v][c] = int(line_info[4])
                     self.call_unload_costs_per_vehicle[v][c] = int(line_info[5])
 
         print("[IO] input instance file parsed successfully")

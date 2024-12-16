@@ -42,17 +42,19 @@ def main():
 	my_reader = InstanceReader()
 	my_reader.read_instance(input_file_name)
 
+	include_node_costs = True
+
 	solution1 = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6")
-	print("The fleet cost of this solution is: " + str(solution1.fleet_cost()))
+	print("The fleet cost of this solution is: " + str(solution1.fleet_cost(include_node_costs)))
 	print("The spotcharter cost of this solution is: " + str(solution1.spotcharter_cost()))
-	print("The total cost of this solution is: " + str(solution1.total_cost()) + "\n")
+	print("The total cost of this solution is: " + str(solution1.total_cost(include_node_costs)) + "\n")
 	
 	solution2 = Solution(my_reader, "4 4 3 3 0 7 7 0 5 5 2 2 0 6 1 6 1")
-	print("The fleet cost of this solution is: " + str(solution2.fleet_cost()))
+	print("The fleet cost of this solution is: " + str(solution2.fleet_cost(include_node_costs)))
 	print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
-	print("The total cost of this solution is: " + str(solution2.total_cost()) + "\n")
+	print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
 
-
+	
 # guard, checking if we are executing this file from the terminal
 if __name__ == "__main__":
     main()
