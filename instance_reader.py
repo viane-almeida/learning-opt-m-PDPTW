@@ -107,9 +107,9 @@ class InstanceReader:
                 line = line.strip()    #cuts any leading/trailing space
                 line_info = line.split(',')   # list
 
-                self.vehicle_home_node[v] = line_info[1]
-                self.vehicle_starting_time[v] = line_info[2]
-                self.vehicle_capacity[v] = line_info[3]
+                self.vehicle_home_node[v] = int(line_info[1])
+                self.vehicle_starting_time[v] = int(line_info[2])
+                self.vehicle_capacity[v] = int(line_info[3])
 
                 # read next line
                 line = next(f)

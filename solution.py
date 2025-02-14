@@ -119,7 +119,7 @@ class Solution:
 
             # home node of vehicle (starting position)
             home = self.instance.vehicle_home_node[v]
-            self.vehicles_node_routes[v] = [int(home)]
+            self.vehicles_node_routes[v] = [home]
 
             # iterate over nodes corresponding to call pickup/delivery
             for c in self.vehicles_call_sequence[v]:
@@ -182,6 +182,40 @@ class Solution:
                             fleet += self.instance.call_unload_costs_per_vehicle[v][c]
         return(fleet)
 
+
+    def is_feasible(self):
+        """
+        Evaluate whether or not the solution is feasible, by checking: the capacity of the vihicles,
+        time windows at both pickup/delivery nodes, calls and vehicles compatibily.
+        """
+
+        # 1. CHECKS, FOR EACH VEHICLE, ITS CAPACITY 
+        for v in range(1, self.instance.num_vehicles+1):
+            print("veiculo", v)
+            load_onboard = 0
+            pickup = [True] * (self.instance.num_calls + 1)
+            for c in self.vehicles_call_sequence[v]:
+                print("c = ", c, " pickup = ", pickup)
+                if (pickup[c] == True):
+                    pickup[c] = False  # ....
+                    load_onboard += self.instance.call_size[c]
+                    print("carga atual", load_onboard)
+                    if load_onboard > self.instance.vehicle_capacity[v]:
+                        return False
+
+                else:
+                    load_onboard -= self.instance.call_size[c]
+                    print("carga atual", load_onboard)
+
+        # 2. CHECKS COMPATIBILITY OF CALLS AND VEHICLES
+
+        # TO DO: all
+
+        # 3. CHECKS TIME WINDOWS 
+
+        # TO DO: all
+
+        return True   # passed all tests
 
     def spotcharter_cost(self):
         """
