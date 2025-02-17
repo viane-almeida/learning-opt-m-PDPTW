@@ -45,7 +45,7 @@ def main():
 	include_node_costs = True
 
 	solution1 = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6")
-	feasible = solution1.is_feasible()
+	feasible = solution1.is_feasible(logging=True)
 	if feasible:
 		print("The fleet cost of this solution is: " + str(solution1.fleet_cost(include_node_costs)))
 		print("The spotcharter cost of this solution is: " + str(solution1.spotcharter_cost()))
@@ -55,12 +55,13 @@ def main():
 		print("The given solution is not feasible")
 	
 	solution2 = Solution(my_reader, "4 4 3 3 0 7 7 0 5 5 2 2 0 6 1 6 1")
+	feasible = solution2.is_feasible(logging=True)
 	print("The fleet cost of this solution is: " + str(solution2.fleet_cost(include_node_costs)))
 	print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
 	print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
 
-	solution3 = Solution(my_reader, "0 1 2 1 2 0 5 5 3 3 0 7 4 6 7 4 6")
-	feasible = solution3.is_feasible()
+	solution3 = Solution(my_reader, "5 5 4 4 0 2 2 0 3 3 0 7 7 1 1")
+	feasible = solution3.is_feasible(logging=True)
 	if feasible:
 		print("The fleet cost of this solution is: " + str(solution3.fleet_cost(include_node_costs)))
 		print("The spotcharter cost of this solution is: " + str(solution3.spotcharter_cost()))

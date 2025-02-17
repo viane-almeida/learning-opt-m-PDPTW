@@ -183,35 +183,84 @@ class Solution:
         return(fleet)
 
 
-    def is_feasible(self):
+    def is_feasible(self, logging=False):
         """
         Evaluate whether or not the solution is feasible, by checking: the capacity of the vihicles,
         time windows at both pickup/delivery nodes, calls and vehicles compatibily.
         """
 
-        # 1. CHECKS, FOR EACH VEHICLE, ITS CAPACITY 
+        # 1. CHECKS COMPATIBILITY OF CALLS AND VEHICLES
         for v in range(1, self.instance.num_vehicles+1):
-            print("veiculo", v)
+            #print("vehicle", v)
+            for c in self.vehicles_call_sequence[v]:
+                #print("call", c)
+                if c not in self.instance.vehicle_compatible_calls[v]:
+                    if logging:
+                        print("INFEASIBLE SOLUTION: vehicle ", v, " taking incompatible call ", c)
+                    return False
+
+        # 2. CHECKS, FOR EACH VEHICLE, ITS CAPACITY 
+        for v in range(1, self.instance.num_vehicles+1):
             load_onboard = 0
             pickup = [True] * (self.instance.num_calls + 1)
             for c in self.vehicles_call_sequence[v]:
-                print("c = ", c, " pickup = ", pickup)
                 if (pickup[c] == True):
-                    pickup[c] = False  # ....
+                    pickup[c] = False  #next time it will be a delivery
                     load_onboard += self.instance.call_size[c]
-                    print("carga atual", load_onboard)
                     if load_onboard > self.instance.vehicle_capacity[v]:
+                        if logging:
+                            print("INFEASIBLE SOLUTION: vehicle ", v, " load exceeded")
                         return False
-
                 else:
                     load_onboard -= self.instance.call_size[c]
-                    print("carga atual", load_onboard)
-
-        # 2. CHECKS COMPATIBILITY OF CALLS AND VEHICLES
-
-        # TO DO: all
 
         # 3. CHECKS TIME WINDOWS 
+        for v in range(1, self.instance.num_vehicles+1):
+
+            # if the vehicle does not have a route, skip to the next vehicle
+            if len(self.vehicles_node_routes[v]) == 1:
+                continue
+
+            # processing each part of the route
+            i = 0
+            current_node = self.vehicles_node_routes[v][i]
+            current_time = self.instance.vehicle_starting_time[v]
+            pickup = [True] * (self.instance.num_calls + 1)
+
+            j = self.vehicles_node_routes[v][i+1]
+            t = current_time
+
+            # mask flagging calls already taken in the route (is it pickup or delivery)       
+            for c in self.vehicles_call_sequence[v]:
+                if (pickup[c] == True):
+                    pickup[c] = False
+                    if t + int(self.instance.travel_time_matrices[v][i][j]) + int(self.instance.call_load_times_per_vehicle[v][c]) > self.instance.call_pickup_ub[c]:
+                        if logging:
+                            print("INFEASIBLE SOLUTION: time windows not respected")
+                        
+                        return False
+                    else:
+                        current_node = self.vehicles_node_routes[v][i+1]
+                        current_time +=  self.instance.travel_time_matrices[v][i][j] + self.instance.call_load_times_per_vehicle[v][c]
+                        i = i + 1
+                else: #it is a delivery
+                    if t + int(self.instance.travel_time_matrices[v][i][j]) + int(self.instance.call_unload_times_per_vehicle[v][c]) > self.instance.call_delivery_ub[c]:
+                        if logging:
+                            print("INFEASIBLE SOLUTION: time windows not respected")
+
+                        return False
+                    else:
+                        current_node = self.vehicles_node_routes[v][i+1]
+                        current_time += self.instance.travel_time_matrices[v][i][j] + self.instance.call_unload_times_per_vehicle[v][c]
+                        i = i + 1
+
+
+
+
+
+
+
+
 
         # TO DO: all
 
