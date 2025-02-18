@@ -34,9 +34,13 @@ __email__ = "viane202@hotmail.com"
 
 from instance_reader import InstanceReader
 from solution import Solution
+from solution_generator import SolutionGenerator
+
+import random
 
 def main():
 	# TO DO: read input file name from terminal
+	random.seed(8693967211)
 	input_file_name = "input/Call_7_Vehicle_3.txt"
 
 	my_reader = InstanceReader()
@@ -69,6 +73,12 @@ def main():
 
 	else:
 		print("The given solution is not feasible")
+
+	# TO DO: organize the code in this main function
+
+	# testing the solution generator
+	fabric = SolutionGenerator(3, 7)
+	teste = fabric.create_one_solution()
 
 	
 # guard, checking if we are executing this file from the terminal

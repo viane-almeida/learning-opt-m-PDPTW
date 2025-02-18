@@ -254,16 +254,6 @@ class Solution:
                         current_time += self.instance.travel_time_matrices[v][i][j] + self.instance.call_unload_times_per_vehicle[v][c]
                         i = i + 1
 
-
-
-
-
-
-
-
-
-        # TO DO: all
-
         return True   # passed all tests
 
     def spotcharter_cost(self):
