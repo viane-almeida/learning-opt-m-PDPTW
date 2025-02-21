@@ -37,10 +37,32 @@ from solution import Solution
 from solution_generator import SolutionGenerator
 
 import random
+import time    
 
 def main():
+	# TO DO: replace this by ten big primes and a choice of which one to use
+	"""
+	2442263587
+	2919079211
+	1192607393
+	9848162447
+	3646538963
+	3964742447
+	9781856377
+	6414435113
+	8693967211
+	2581330943
+	"""
+	USE_EPOCH_AS_SEED = True
+
 	# TO DO: read input file name from terminal
-	random.seed(8693967211)
+
+	epoch_time = int(time.time())
+	if USE_EPOCH_AS_SEED:
+		random.seed(epoch_time)
+	else:
+		random.seed(8693967211)
+
 	input_file_name = "input/Call_7_Vehicle_3.txt"
 
 	my_reader = InstanceReader()
@@ -48,7 +70,7 @@ def main():
 
 	include_node_costs = True
 
-	solution1 = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6")
+	solution1 = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6", logging=True)
 	feasible = solution1.is_feasible(logging=True)
 	if feasible:
 		print("The fleet cost of this solution is: " + str(solution1.fleet_cost(include_node_costs)))
@@ -58,13 +80,13 @@ def main():
 	else:
 		print("The given solution is not feasible")
 	
-	solution2 = Solution(my_reader, "4 4 3 3 0 7 7 0 5 5 2 2 0 6 1 6 1")
+	solution2 = Solution(my_reader, "4 4 3 3 0 7 7 0 5 5 2 2 0 6 1 6 1", logging=True)
 	feasible = solution2.is_feasible(logging=True)
 	print("The fleet cost of this solution is: " + str(solution2.fleet_cost(include_node_costs)))
 	print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
 	print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
 
-	solution3 = Solution(my_reader, "5 5 4 4 0 2 2 0 3 3 0 7 7 1 1")
+	solution3 = Solution(my_reader, "5 5 4 4 0 2 2 0 3 3 0 7 7 1 1", logging=True)
 	feasible = solution3.is_feasible(logging=True)
 	if feasible:
 		print("The fleet cost of this solution is: " + str(solution3.fleet_cost(include_node_costs)))
@@ -77,9 +99,14 @@ def main():
 	# TO DO: organize the code in this main function
 
 	# testing the solution generator
-	fabric = SolutionGenerator(3, 7)
-	teste = fabric.create_one_solution()
-
+	fabric = SolutionGenerator(my_reader)
+	#solution = fabric.create_one_solution()
+	solution_pool = fabric.try_creating_n_solutions(10000)
+	if len(solution_pool) > 0:
+		best_objective_found = min([x.total_cost(include_node_costs) for x in solution_pool])
+	else:
+		best_objective_found = '-'
+	print(len(solution_pool), ", best_objective_found = ", best_objective_found)
 	
 # guard, checking if we are executing this file from the terminal
 if __name__ == "__main__":

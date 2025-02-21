@@ -51,7 +51,8 @@ class Solution:
 
     def __init__(self,
                  input_instance: InstanceReader,
-                 short_solution_form: str):
+                 short_solution_form: str,
+                 logging = False):
         """
         Constructor building an object from a string representing a solution.
         The string format is as follows:
@@ -90,8 +91,9 @@ class Solution:
 
         # break string into lists of calls per vehicle
         broken = short_solution_form.split('0')
-        print("reading solution from: ")
-        print(broken)
+        if logging:
+            print("reading solution from: ")
+            print(broken)
 
         for v in range(self.instance.num_vehicles):
             tmp = broken[v].strip().split()
@@ -129,9 +131,9 @@ class Solution:
                 else:
                     self.vehicles_node_routes[v].append(self.instance.call_destination[c])
 
-
-        print("routes of each vehicle:")
-        print(self.vehicles_node_routes[1:])
+        if logging:
+            print("routes of each vehicle:")
+            print(self.vehicles_node_routes[1:])
 
 
     def fleet_cost(self, include_node_costs=True):
