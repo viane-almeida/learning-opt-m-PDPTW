@@ -32,12 +32,13 @@ __version__ = "0.0.1"
 __email__ = "viane202@hotmail.com"
 """
 
-from instance_reader import InstanceReader
-from solution import Solution
-from solution_generator import SolutionGenerator
-
 import random
 import time    
+
+from src.instance_reader import InstanceReader
+from src.solution import Solution
+from src.solution_generator import SolutionGenerator
+
 
 def main():
 	# TO DO: replace this by ten big primes and a choice of which one to use
@@ -86,28 +87,16 @@ def main():
 	print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
 	print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
 
-	solution3 = Solution(my_reader, "5 5 4 4 0 2 2 0 3 3 0 7 7 1 1", logging=True)
-	feasible = solution3.is_feasible(logging=True)
-	if feasible:
-		print("The fleet cost of this solution is: " + str(solution3.fleet_cost(include_node_costs)))
-		print("The spotcharter cost of this solution is: " + str(solution3.spotcharter_cost()))
-		print("The total cost of this solution is: " + str(solution3.total_cost(include_node_costs)) + "\n")
-
-	else:
-		print("The given solution is not feasible")
-
 	# TO DO: organize the code in this main function
 
 	# testing the solution generator
 	fabric = SolutionGenerator(my_reader)
-	#solution = fabric.create_one_solution()
 	solution_pool = fabric.try_creating_n_solutions(10000)
-	if len(solution_pool) > 0:
-		best_objective_found = min([x.total_cost(include_node_costs) for x in solution_pool])
-	else:
-		best_objective_found = '-'
-	print(len(solution_pool), ", best_objective_found = ", best_objective_found)
+	best_found = fabric.report_best_solution_found(solution_pool)
+	print(len(solution_pool), "feasible solutions")
+	print("best objective found =", best_found)
 	
+
 # guard, checking if we are executing this file from the terminal
 if __name__ == "__main__":
     main()

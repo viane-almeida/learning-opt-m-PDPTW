@@ -32,7 +32,7 @@ __version__ = "0.0.1"
 __email__ = "viane202@hotmail.com"
 """
 
-from instance_reader import InstanceReader
+from .instance_reader import InstanceReader
 
 class Solution:
     """

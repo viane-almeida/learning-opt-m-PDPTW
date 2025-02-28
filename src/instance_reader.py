@@ -72,7 +72,13 @@ class InstanceReader:
         self.call_unload_costs_per_vehicle = []
 
 
-    def read_instance(self, file_name):
+    def read_instance(self,
+                      file_name: str):
+        """
+        Parse an mPDPTW instance in the file path given in the argument.
+
+        NB! Assumes the instance is well-defined - no error-checking here.
+        """
 
         with open(file_name) as f:
 
@@ -93,7 +99,7 @@ class InstanceReader:
             self.num_vehicles = int(line)
 
             # 3. INITIALIZE OBJECT ATTRIBUTES WITH PROPER SIZE LISTS/MATRICES
-            self.create_vehicle_structures()
+            self.__create_vehicle_structures()
 
             # 4. FOR EACH VEHICLE: SAVE HOME NODE, STARTING TIME, CAPACITY
             line = next(f)
@@ -122,7 +128,7 @@ class InstanceReader:
             self.num_calls = int(line)
 
             # 6. INITIALIZE REMAINING OBJECT ATTRIBUTES WITH PROPER SIZE LISTS/MATRICES
-            self.create_call_structures()
+            self.__create_call_structures()
 
             # 7. READ A LIST OF CALLS THAT CAN BE TRANSPORTED USING EACH VEHICLE
             for v in range(1, self.num_vehicles+1):
@@ -180,7 +186,7 @@ class InstanceReader:
         print("[IO] input instance file parsed successfully")
 
 
-    def create_vehicle_structures(self):
+    def __create_vehicle_structures(self):
         """
         Update first object attributes with lists of proper sizes
         NB! Padding all lists with a dummy "-1" to keep consistent indexing,
@@ -196,7 +202,7 @@ class InstanceReader:
             self.vehicle_compatible_calls[i] = []
 
 
-    def create_call_structures(self):
+    def __create_call_structures(self):
         """
         Update remaining object attributes with lists of proper sizes
         NB! Padding all lists with a dummy "-1" to keep consistent indexing,

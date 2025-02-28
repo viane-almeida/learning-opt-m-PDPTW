@@ -32,8 +32,8 @@ __version__ = "0.0.1"
 __email__ = "viane202@hotmail.com"
 """
 
-from instance_reader import InstanceReader
-from solution import Solution
+from .instance_reader import InstanceReader
+from .solution import Solution
 
 import random
 
@@ -124,3 +124,15 @@ class SolutionGenerator:
         
         return solutions
 
+    def report_best_solution_found(self,
+                                   solutions: list[Solution]) -> int:
+        """
+        Returns the cost of the best solution in the given collection.
+        """
+
+        if len(solutions) > 0:
+            return min([x.total_cost() for x in solutions])
+        else:
+            print("\nERROR: ")
+            print("Argument to 'report_best_solution_found' is an empty list\n")
+            return None
