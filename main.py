@@ -34,40 +34,30 @@ __email__ = "viane202@hotmail.com"
 
 import random
 import time    
+import sys
 
+from src.settings import Settings
 from src.instance_reader import InstanceReader
 from src.solution import Solution
 from src.solution_generator import SolutionGenerator
 
 
+
 def main():
-	# TO DO: replace this by ten big primes and a choice of which one to use
-	"""
-	2442263587
-	2919079211
-	1192607393
-	9848162447
-	3646538963
-	3964742447
-	9781856377
-	6414435113
-	8693967211
-	2581330943
-	"""
-	USE_EPOCH_AS_SEED = True
 
-	# TO DO: read input file name from terminal
+	if len(sys.argv) < 3:
+		print('Error: missing command line execution arguments')
+		print('')
+		print('Usage: python3 main.py [input_file_path] [random_seed_index]')
+		quit()
 
-	epoch_time = int(time.time())
-	if USE_EPOCH_AS_SEED:
-		random.seed(epoch_time)
-	else:
-		random.seed(8693967211)
+	input_path = sys.argv[1]
+	seed_idx = sys.argv[2]
 
-	input_file_name = "input/Call_7_Vehicle_3.txt"
-
+	my_settings = Settings()
+	my_settings.init_random_number_gen(seed_idx)
 	my_reader = InstanceReader()
-	my_reader.read_instance(input_file_name)
+	my_reader.read_instance(input_path)
 
 	include_node_costs = True
 
@@ -91,8 +81,10 @@ def main():
 
 	# testing the solution generator
 	fabric = SolutionGenerator(my_reader)
+	# TO DO: start timer
 	solution_pool = fabric.try_creating_n_solutions(10000)
 	best_found = fabric.report_best_solution_found(solution_pool)
+	# TO DO: stop timer
 	print(len(solution_pool), "feasible solutions")
 	print("best objective found =", best_found)
 	
