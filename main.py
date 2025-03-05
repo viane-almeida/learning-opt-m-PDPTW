@@ -42,7 +42,6 @@ from src.solution import Solution
 from src.solution_generator import SolutionGenerator
 
 
-
 def main():
 
 	if len(sys.argv) < 3:
@@ -61,32 +60,40 @@ def main():
 
 	include_node_costs = True
 
-	solution1 = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6", logging=True)
-	feasible = solution1.is_feasible(logging=True)
-	if feasible:
-		print("The fleet cost of this solution is: " + str(solution1.fleet_cost(include_node_costs)))
-		print("The spotcharter cost of this solution is: " + str(solution1.spotcharter_cost()))
-		print("The total cost of this solution is: " + str(solution1.total_cost(include_node_costs)) + "\n")
+	#solution1 = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6", logging=True)
+	#feasible = solution1.is_feasible(logging=True)
+	#if feasible:
+		#print("The fleet cost of this solution is: " + str(solution1.fleet_cost(include_node_costs)))
+		#print("The spotcharter cost of this solution is: " + str(solution1.spotcharter_cost()))
+		#print("The total cost of this solution is: " + str(solution1.total_cost(include_node_costs)) + "\n")
 
-	else:
-		print("The given solution is not feasible")
-	
-	solution2 = Solution(my_reader, "4 4 3 3 0 7 7 0 5 5 2 2 0 6 1 6 1", logging=True)
-	feasible = solution2.is_feasible(logging=True)
-	print("The fleet cost of this solution is: " + str(solution2.fleet_cost(include_node_costs)))
-	print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
-	print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
+	#else:
+		#print("The given solution is not feasible")
+    
+	#solution2 = Solution(my_reader, "4 4 3 3 0 7 7 0 5 5 2 2 0 6 1 6 1", logging=True)
+	#feasible = solution2.is_feasible(logging=True)
+	#print("The fleet cost of this solution is: " + str(solution2.fleet_cost(include_node_costs)))
+	#print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
+	#print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
 
-	# TO DO: organize the code in this main function
+    # TO DO: organize the code in this main function
 
-	# testing the solution generator
+    # testing the solution generator
 	fabric = SolutionGenerator(my_reader)
-	# TO DO: start timer
+
+	# clocking the execution time
+	clock_start = time.time()
+
 	solution_pool = fabric.try_creating_n_solutions(10000)
 	best_found = fabric.report_best_solution_found(solution_pool)
-	# TO DO: stop timer
+
+	clock_end = time.time()
+	elapsed_time = clock_end - clock_start
+
 	print(len(solution_pool), "feasible solutions")
 	print("best objective found =", best_found)
+	print('execution time: {:09.5f} seconds'.format(elapsed_time))
+
 	
 
 # guard, checking if we are executing this file from the terminal

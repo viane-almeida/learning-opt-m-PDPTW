@@ -87,24 +87,31 @@ class Solution:
 
         ########################################################################
         # 1. BREAK THE GIVEN STRING BY VEHICLES
-        short_solution_form.strip()
 
-        # break string into lists of calls per vehicle
-        broken = short_solution_form.split('0')
+        broken = [ [] for i in range(self.instance.num_vehicles+1) ]
+
+        current = 0
+        for token in short_solution_form.split():
+            if token != "0":
+                broken[current].append(token)
+            else:
+                current += 1
+
         if logging:
             print("reading solution from: ")
             print(broken)
 
-        for v in range(self.instance.num_vehicles):
-            tmp = broken[v].strip().split()
+        if len(broken) != self.instance.num_vehicles + 1:
+            print("ERROR: invalid solution - number of vehicles not as expected")
+            quit()
 
+        for v in range(self.instance.num_vehicles):
             # vehicles index starts from 1
-            self.vehicles_call_sequence[v+1] = [int(x) for x in tmp]
+            self.vehicles_call_sequence[v+1] = [int(x) for x in broken[v]]
 
         ########################################################################
         # 2. THE STRING ENDS (AFTER LAST ZERO) WITH THE SPOT CHARTED CALLS
-        tmp = broken[self.instance.num_vehicles].strip().split()
-        self.calls_not_taken = [int(x) for x in tmp]
+        self.calls_not_taken = [int(x) for x in broken[self.instance.num_vehicles]]
 
         ########################################################################
         # 3. NUMBER OF CALLS TAKEN
@@ -117,7 +124,7 @@ class Solution:
         for v in range(1, self.instance.num_vehicles+1):
 
             # mask flagging nodes already visited in the route
-            visited = [False] * (self.instance.num_nodes+1)
+            returning = [False] * (self.instance.num_calls+1)
 
             # home node of vehicle (starting position)
             home = self.instance.vehicle_home_node[v]
@@ -125,8 +132,8 @@ class Solution:
 
             # iterate over nodes corresponding to call pickup/delivery
             for c in self.vehicles_call_sequence[v]:
-                if(visited[c] == False):
-                    visited[c] = True
+                if(returning[c] == False):
+                    returning[c] = True
                     self.vehicles_node_routes[v].append(self.instance.call_origin[c])
                 else:
                     self.vehicles_node_routes[v].append(self.instance.call_destination[c])
@@ -225,36 +232,39 @@ class Solution:
 
             # processing each part of the route
             i = 0
-            current_node = self.vehicles_node_routes[v][i]
-            current_time = self.instance.vehicle_starting_time[v]
-            pickup = [True] * (self.instance.num_calls + 1)
+            current = self.vehicles_node_routes[v][i]
+            next = self.vehicles_node_routes[v][i+1]
+            time = self.instance.vehicle_starting_time[v]
 
-            j = self.vehicles_node_routes[v][i+1]
-            t = current_time
+            pickup = [True] * (self.instance.num_calls + 1)
 
             # mask flagging calls already taken in the route (is it pickup or delivery)       
             for c in self.vehicles_call_sequence[v]:
                 if (pickup[c] == True):
                     pickup[c] = False
-                    if t + int(self.instance.travel_time_matrices[v][i][j]) + int(self.instance.call_load_times_per_vehicle[v][c]) > self.instance.call_pickup_ub[c]:
+                    if time + int(self.instance.travel_time_matrices[v][current][next]) + int(self.instance.call_load_times_per_vehicle[v][c]) > self.instance.call_pickup_ub[c]:
                         if logging:
                             print("INFEASIBLE SOLUTION: time windows not respected")
                         
                         return False
                     else:
-                        current_node = self.vehicles_node_routes[v][i+1]
-                        current_time +=  self.instance.travel_time_matrices[v][i][j] + self.instance.call_load_times_per_vehicle[v][c]
+                        time +=  self.instance.travel_time_matrices[v][current][next] + self.instance.call_load_times_per_vehicle[v][c]
                         i = i + 1
+                        current = self.vehicles_node_routes[v][i]
+                        if i < len(self.vehicles_node_routes[v])-1:
+                            next = self.vehicles_node_routes[v][i+1]
                 else: #it is a delivery
-                    if t + int(self.instance.travel_time_matrices[v][i][j]) + int(self.instance.call_unload_times_per_vehicle[v][c]) > self.instance.call_delivery_ub[c]:
+                    if time + int(self.instance.travel_time_matrices[v][current][next]) + int(self.instance.call_unload_times_per_vehicle[v][c]) > self.instance.call_delivery_ub[c]:
                         if logging:
                             print("INFEASIBLE SOLUTION: time windows not respected")
 
                         return False
                     else:
-                        current_node = self.vehicles_node_routes[v][i+1]
-                        current_time += self.instance.travel_time_matrices[v][i][j] + self.instance.call_unload_times_per_vehicle[v][c]
+                        time += self.instance.travel_time_matrices[v][current][next] + self.instance.call_unload_times_per_vehicle[v][c]
                         i = i + 1
+                        current = self.vehicles_node_routes[v][i]
+                        if i < len(self.vehicles_node_routes[v])-1:
+                            next = self.vehicles_node_routes[v][i+1]
 
         return True   # passed all tests
 
