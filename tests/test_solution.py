@@ -75,7 +75,7 @@ class TestSolution(unittest.TestCase):
         assert(solution1.is_feasible() == True)
 
         solution2 = Solution(my_reader, "4 4 3 3 0 7 7 0 5 5 2 2 0 6 1 6 1")
-        assert(solution2.is_feasible() == True)
+        assert(solution2.is_feasible() == False)
 
         solution3 = Solution(my_reader, "5 5 4 4 0 2 2 0 3 3 0 7 7 1 1")
         assert(solution3.is_feasible() == False)

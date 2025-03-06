@@ -127,12 +127,23 @@ class SolutionGenerator:
     def report_best_solution_found(self,
                                    solutions: list[Solution]) -> int:
         """
-        Returns the cost of the best solution in the given collection.
+        Returns a tuple containint the cost of the best solution in the given
+        collection and the index of the corresponding solution the list.
         """
 
         if len(solutions) > 0:
-            return min([x.total_cost() for x in solutions])
+
+            # will traverse the list and find the solution of mininum total cost
+            min_val = solutions[0].total_cost()
+            min_idx = 0
+
+            for i in range(1, len(solutions)):
+                tmp = solutions[i].total_cost()
+                if tmp < min_val:
+                    min_val = tmp
+                    min_idx = i
+
+            return (min_val, min_idx)
+
         else:
-            print("\nERROR: ")
-            print("Argument to 'report_best_solution_found' is an empty list\n")
             return None

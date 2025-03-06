@@ -90,11 +90,15 @@ def main():
 	clock_end = time.time()
 	elapsed_time = clock_end - clock_start
 
-	print(len(solution_pool), "feasible solutions")
-	print("best objective found =", best_found)
 	print('execution time: {:09.5f} seconds'.format(elapsed_time))
+	print(len(solution_pool), "feasible solutions")
+	if len(solution_pool) > 0:
+		min_val = best_found[0]
+		min_idx = best_found[1]
+		print("best objective found =", min_val)
+		print("solution:", solution_pool[min_idx].str_representation)
 
-	
+
 
 # guard, checking if we are executing this file from the terminal
 if __name__ == "__main__":

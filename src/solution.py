@@ -75,6 +75,7 @@ class Solution:
 
         # saves the reference to the input instance object
         self.instance = input_instance
+        self.str_representation = short_solution_form
 
         self.vehicles_num_calls_taken = [-1] * (self.instance.num_vehicles+1)
         self.calls_not_taken = []
@@ -238,29 +239,50 @@ class Solution:
 
             pickup = [True] * (self.instance.num_calls + 1)
 
-            # mask flagging calls already taken in the route (is it pickup or delivery)       
+            # mask flagging calls already taken in the route (is it pickup or delivery)
             for c in self.vehicles_call_sequence[v]:
                 if (pickup[c] == True):
                     pickup[c] = False
-                    if time + int(self.instance.travel_time_matrices[v][current][next]) + int(self.instance.call_load_times_per_vehicle[v][c]) > self.instance.call_pickup_ub[c]:
+
+                    # travel time
+                    time += self.instance.travel_time_matrices[v][current][next]
+
+                    # check if lowerbound load time is respected (wait if needed)
+                    if time < self.instance.call_pickup_lb[c]:
+                        time = self.instance.call_pickup_lb[c]
+
+                    # service time
+                    time += self.instance.call_load_times_per_vehicle[v][c]
+
+                    # check if upperbound load time is respected
+                    if time > self.instance.call_pickup_ub[c]:
                         if logging:
                             print("INFEASIBLE SOLUTION: time windows not respected")
-                        
                         return False
                     else:
-                        time +=  self.instance.travel_time_matrices[v][current][next] + self.instance.call_load_times_per_vehicle[v][c]
                         i = i + 1
                         current = self.vehicles_node_routes[v][i]
                         if i < len(self.vehicles_node_routes[v])-1:
                             next = self.vehicles_node_routes[v][i+1]
+
                 else: #it is a delivery
-                    if time + int(self.instance.travel_time_matrices[v][current][next]) + int(self.instance.call_unload_times_per_vehicle[v][c]) > self.instance.call_delivery_ub[c]:
+
+                    # travel time
+                    time += self.instance.travel_time_matrices[v][current][next]
+
+                    # check if lowerbound unload time is respected
+                    if time < self.instance.call_delivery_lb[c]:
+                        time = self.instance.delivery_pickup_lb[c]
+
+                    # service time
+                    time += self.instance.call_unload_times_per_vehicle[v][c]
+
+                    #check if upperbound unload time is respected
+                    if time > self.instance.call_delivery_ub[c]:
                         if logging:
                             print("INFEASIBLE SOLUTION: time windows not respected")
-
                         return False
                     else:
-                        time += self.instance.travel_time_matrices[v][current][next] + self.instance.call_unload_times_per_vehicle[v][c]
                         i = i + 1
                         current = self.vehicles_node_routes[v][i]
                         if i < len(self.vehicles_node_routes[v])-1:
