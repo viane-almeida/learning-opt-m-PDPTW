@@ -58,20 +58,42 @@ class TestSolutionGenerator(unittest.TestCase):
         my_reader.read_instance(input_file_name)
         
         generator = SolutionGenerator(my_reader)
-        generator.try_creating_n_solutions(1)
+        generator.try_creating_n_random_solutions(1)
 
         assert True
 
-    def test_try_creating_n_solutions(self):
+    def test_try_creating_n_random_solutions(self):
         input_file_name = "input/Call_7_Vehicle_3.txt"
         my_reader = InstanceReader()
         my_reader.read_instance(input_file_name)
         
         generator = SolutionGenerator(my_reader)
-        generator.try_creating_n_solutions(100)
+        generator.try_creating_n_random_solutions(100)
 
         assert True
 
+    def test_local_search_operator(self):
+        input_file_name = "input/Call_7_Vehicle_3.txt"
+        my_reader = InstanceReader()
+        my_reader.read_instance(input_file_name)
+        
+        generator = SolutionGenerator(my_reader)
+
+        initial_solution = generator.build_trivial_solution()
+
+        best_found = initial_solution
+        best_found_cost = initial_solution.total_cost()
+
+        for i in range(10):
+            new_solution = generator.local_search_operator(best_found)
+            if new_solution.is_feasible():
+                new_solution_cost = new_solution.total_cost()
+                if (new_solution_cost < best_found_cost):
+                    best_found = new_solution
+                    best_found_cost = new_solution_cost
+                    print("Found a better incumbent solution of cost ", best_found_cost)
+
+        assert True
 
 if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=2)

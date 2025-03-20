@@ -11,6 +11,7 @@ class Settings:
 
     def __init__(self):
         self.__init_seed_list()
+        self.LOCAL_SEARCH_NUM_ITERATIONS = 10000
 
 
     def init_random_number_gen(self,

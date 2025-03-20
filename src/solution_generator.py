@@ -36,6 +36,7 @@ from .instance_reader import InstanceReader
 from .solution import Solution
 
 import random
+import copy
 
 class SolutionGenerator:
     """
@@ -55,8 +56,25 @@ class SolutionGenerator:
 
         # TO DO: what else?
 
+    def __convert_lists_to_string(self,
+                                  lists: list[list]):
+        """
+        Auxiliary method to convert a list of lists representation of a solution
+        into the string one (separated by 0s)
+        """
 
-    def create_one_solution(self):
+        for i in range(len(lists)-1):
+            lists[i].append(0)
+        
+        # gather the list of lists into a single list
+        res = sum(lists, [])
+        
+        string_representation = ' '.join(str(c) for c in res)
+
+        return string_representation
+
+
+    def create_one_random_solution(self):
         """
         TO DO
 
@@ -65,16 +83,16 @@ class SolutionGenerator:
                 - it contains 2 occurrences of each number from 1 to self.num_calls, with no '0' between them
         """
 
-        # 1. initialize num_vehicles empty lists
+        # 1. INITIALIZE NUM_VEHICLES EMPTY LISTS
         calls_for_each_vehicle = []
         for i in range(self.num_vehicles + 1):
             calls_for_each_vehicle.append([])
         #print("list of calls: ", calls_for_each_vehicle)
 
 
-        # 2. for i in 1,2...num_calls
+        # 2. FOR I IN 1,2...NUM_CALLS
         for i in range(1, self.num_calls + 1):
-            # 2.1. choose a "random" vehicle (including the spot charter) from 1 to num_vehicles
+            # 2.1. choose a "random" vehicle (including the spot charter)
             idx = random.randint(0,self.num_vehicles)
             #print("vehicle ", idx)
             
@@ -88,22 +106,13 @@ class SolutionGenerator:
         #print("list of calls ", calls_for_each_vehicle)
 
 
-        # 3. concatenate the lists with a '0' between them and convert to string
-
-        for i in range(len(calls_for_each_vehicle)-1):
-            calls_for_each_vehicle[i].append(0)
-        #print("list of calls with zeros", calls_for_each_vehicle)
-
-        res = sum(calls_for_each_vehicle, [])
-        #print(res)
-
-        sequence_of_calls = ' '.join(str(c) for c in res)
-        #print("sequence of calls:", sequence_of_calls)
+        # 3. CONCATENATE THE LISTS WITH A '0' BETWEEN THEM AND CONVERT TO STRING
+        sequence_of_calls = self.__convert_lists_to_string(calls_for_each_vehicle)
 
         return sequence_of_calls
 
 
-    def try_creating_n_solutions(self, n: int):
+    def try_creating_n_random_solutions(self, n: int):
         """
         TO DO
         """
@@ -113,7 +122,7 @@ class SolutionGenerator:
         solutions = []
         
         for i in range(n):
-            tmp = self.create_one_solution()
+            tmp = self.create_one_random_solution()
 
             solution = Solution(self.instance, tmp)
 
@@ -147,3 +156,83 @@ class SolutionGenerator:
 
         else:
             return None
+
+
+
+    def build_trivial_solution(self):
+
+        """
+        Returns a Solution object corresponding to the trivial solution where
+        every call is outsourced
+        """
+
+        str_repr = ""
+        for i in range(1, self.num_vehicles+1):
+            str_repr += "0 "
+
+        for i in range(1, self.num_calls+1):
+            str_repr += str(i)
+            str_repr += " "
+            str_repr += str(i)
+            str_repr += " "
+
+        #print("initial solution as a string:", str_repr)
+        return Solution(self.instance, str_repr)
+
+    def local_search_operator(self,
+                              initial_solution: Solution):
+
+        """
+        Gets a Solution object, applies an 1-reinsert operator on it and returns
+        a new Solution object
+        """
+
+        # create a copy of the argument solution using its list structures
+        # NB! logical index starts from 1 (0-th item contains a -1)
+        new_solution_list = copy.deepcopy(initial_solution.vehicles_call_sequence)
+        new_solution_list.append( copy.deepcopy(initial_solution.calls_not_taken) )
+
+        # 1. REMOVE 1 CALL (BOTH PICKUP AND DELIVERY)
+
+        # choose a random non-empty vehicle (including the spotcharter)
+        non_empty_vehicles = []
+        for i in range(1, self.num_vehicles+2):
+            if len(new_solution_list[i]) > 0:
+                non_empty_vehicles.append(i)
+
+        dice = random.randint(0, len(non_empty_vehicles)-1)
+        chosen_vehicle = non_empty_vehicles[dice]
+
+        # choose a random call from this vehicle and remove it
+        dice = random.randint(0, len(new_solution_list[chosen_vehicle])-1)
+        chosen_call = new_solution_list[chosen_vehicle][dice]
+
+        # remove both calls from the chosen vehicle
+        new_solution_list[chosen_vehicle].remove(chosen_call)
+        new_solution_list[chosen_vehicle].remove(chosen_call)
+
+        # 2. INSERT THE CHOSEN CALL IN A DIFFERENT VEHICLE
+        new_vehicle = chosen_vehicle
+        while new_vehicle == chosen_vehicle:
+            dice = random.randint(1, self.num_vehicles+1)
+            new_vehicle = dice
+
+        current_len = len(new_solution_list[new_vehicle])
+        if current_len == 0:
+            new_solution_list[new_vehicle].append(chosen_call)
+            new_solution_list[new_vehicle].append(chosen_call)
+        else:
+            idx = random.randint(0, current_len-1)
+            new_solution_list[new_vehicle].insert(idx, chosen_call)
+            idx = random.randint(0, current_len)
+            new_solution_list[new_vehicle].insert(idx, chosen_call)
+
+        # preparing the object to return: first we drop the dummy [-1]
+        natural_list = new_solution_list[1:]
+        
+        #print("will return a Solution() from ", natural_list)
+
+        # then get a string representation
+        new_solution_as_a_string = self.__convert_lists_to_string(natural_list)
+
+        return Solution(self.instance, new_solution_as_a_string)

@@ -76,27 +76,45 @@ def main():
 	#print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
 	#print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
 
-    # TO DO: organize the code in this main function
-
     # testing the solution generator
 	fabric = SolutionGenerator(my_reader)
 
+
+	############################################################################
+	
+	initial_solution = fabric.build_trivial_solution()
+
+	best_found = initial_solution
+	best_found_cost = initial_solution.total_cost()
+
+	for i in range(my_settings.LOCAL_SEARCH_NUM_ITERATIONS):
+		new_solution = fabric.local_search_operator(best_found)
+		if new_solution.is_feasible():
+			new_solution_cost = new_solution.total_cost()
+			if (new_solution_cost < best_found_cost):
+				best_found = new_solution
+				best_found_cost = new_solution_cost
+				print("Found a better incumbent solution of cost ", best_found_cost)
+	
+	############################################################################
+
+
 	# clocking the execution time
-	clock_start = time.time()
-
-	solution_pool = fabric.try_creating_n_solutions(10000)
-	best_found = fabric.report_best_solution_found(solution_pool)
-
-	clock_end = time.time()
-	elapsed_time = clock_end - clock_start
-
-	print('execution time: {:09.5f} seconds'.format(elapsed_time))
-	print(len(solution_pool), "feasible solutions")
-	if len(solution_pool) > 0:
-		min_val = best_found[0]
-		min_idx = best_found[1]
-		print("best objective found =", min_val)
-		print("solution:", solution_pool[min_idx].str_representation)
+	#clock_start = time.time()
+	#
+	#solution_pool = fabric.try_creating_n_random_solutions(10000)
+	#best_found = fabric.report_best_solution_found(solution_pool)
+	#
+	#clock_end = time.time()
+	#elapsed_time = clock_end - clock_start
+	#
+	#print('execution time: {:09.5f} seconds'.format(elapsed_time))
+	#print(len(solution_pool), "feasible solutions")
+	#if len(solution_pool) > 0:
+	#	min_val = best_found[0]
+	#	min_idx = best_found[1]
+	#	print("best objective found =", min_val)
+	#	print("solution:", solution_pool[min_idx].str_representation)
 
 
 
