@@ -10,8 +10,19 @@ class Settings:
     """
 
     def __init__(self):
+
         self.__init_seed_list()
+
+        # LOCAL SEARCH METHOD PARAMETERS
         self.LOCAL_SEARCH_NUM_ITERATIONS = 10000
+
+        # SIMULATED ANNEALING PARAMETERS
+        self.SA_FINAL_TEMPERATURE = 0.1
+
+        self.SA_FIRST_PHASE_NUM_ITERATIONS = 100
+        self.SA_FIRST_PHASE_ACCEPT_WORSE_PROB = 0.8
+
+        self.SA_FINAL_PHASE_NUM_ITERATIONS = 9900
 
 
     def init_random_number_gen(self,

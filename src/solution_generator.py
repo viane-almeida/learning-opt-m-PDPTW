@@ -179,7 +179,7 @@ class SolutionGenerator:
         #print("initial solution as a string:", str_repr)
         return Solution(self.instance, str_repr)
 
-    def local_search_operator(self,
+    def one_reinsert_operator(self,
                               initial_solution: Solution):
 
         """

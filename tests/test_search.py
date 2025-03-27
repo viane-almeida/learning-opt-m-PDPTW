@@ -24,7 +24,7 @@
 # SOFTWARE.
 
 
-""" Unit test example
+""" Unit test corresponding to the Search module
 
 __author__ = ["Phillippe Samer"]
 __license__ = "MIT"
@@ -38,62 +38,29 @@ import unittest
 import pytest
 
 from src.instance_reader import InstanceReader
+from src.settings import Settings
 from src.solution import Solution
 from src.solution_generator import SolutionGenerator
+from src.search import Search
 
-class TestSolutionGenerator(unittest.TestCase):
+class TestSearch(unittest.TestCase):
 
-    def test_initialization(self):
+    def test_local_search(self):
+
         input_file_name = "input/Call_7_Vehicle_3.txt"
+        seed_idx = 2
+
         my_reader = InstanceReader()
         my_reader.read_instance(input_file_name)
+
+        my_settings = Settings()
+        my_settings.init_random_number_gen(seed_idx)
         
-        generator = SolutionGenerator(my_reader)
+        engine = Search(my_reader, my_settings)
+        engine.local_search()
 
         assert True
 
-    def test_create_one_solution(self):
-        input_file_name = "input/Call_7_Vehicle_3.txt"
-        my_reader = InstanceReader()
-        my_reader.read_instance(input_file_name)
-        
-        generator = SolutionGenerator(my_reader)
-        generator.try_creating_n_random_solutions(1)
-
-        assert True
-
-    def test_try_creating_n_random_solutions(self):
-        input_file_name = "input/Call_7_Vehicle_3.txt"
-        my_reader = InstanceReader()
-        my_reader.read_instance(input_file_name)
-        
-        generator = SolutionGenerator(my_reader)
-        generator.try_creating_n_random_solutions(100)
-
-        assert True
-
-    def test_one_reinsert_operator(self):
-        input_file_name = "input/Call_7_Vehicle_3.txt"
-        my_reader = InstanceReader()
-        my_reader.read_instance(input_file_name)
-        
-        generator = SolutionGenerator(my_reader)
-
-        initial_solution = generator.build_trivial_solution()
-
-        best_found = initial_solution
-        best_found_cost = initial_solution.total_cost()
-
-        for i in range(10):
-            new_solution = generator.one_reinsert_operator(best_found)
-            if new_solution.is_feasible():
-                new_solution_cost = new_solution.total_cost()
-                if (new_solution_cost < best_found_cost):
-                    best_found = new_solution
-                    best_found_cost = new_solution_cost
-                    print("Found a better incumbent solution of cost ", best_found_cost)
-
-        assert True
 
 if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=2)

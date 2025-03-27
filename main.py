@@ -40,6 +40,7 @@ from src.settings import Settings
 from src.instance_reader import InstanceReader
 from src.solution import Solution
 from src.solution_generator import SolutionGenerator
+from src.search import Search
 
 
 def main():
@@ -58,7 +59,7 @@ def main():
 	my_reader = InstanceReader()
 	my_reader.read_instance(input_path)
 
-	include_node_costs = True
+	#include_node_costs = True
 
 	#solution1 = Solution(my_reader, "0 2 2 0 1 5 5 3 1 3 0 7 4 6 7 4 6", logging=True)
 	#feasible = solution1.is_feasible(logging=True)
@@ -76,26 +77,24 @@ def main():
 	#print("The spotcharter cost of this solution is: " + str(solution2.spotcharter_cost()))
 	#print("The total cost of this solution is: " + str(solution2.total_cost(include_node_costs)) + "\n")
 
-    # testing the solution generator
-	fabric = SolutionGenerator(my_reader)
-
-
+    
 	############################################################################
 	
-	initial_solution = fabric.build_trivial_solution()
-
-	best_found = initial_solution
-	best_found_cost = initial_solution.total_cost()
-
-	for i in range(my_settings.LOCAL_SEARCH_NUM_ITERATIONS):
-		new_solution = fabric.local_search_operator(best_found)
-		if new_solution.is_feasible():
-			new_solution_cost = new_solution.total_cost()
-			if (new_solution_cost < best_found_cost):
-				best_found = new_solution
-				best_found_cost = new_solution_cost
-				print("Found a better incumbent solution of cost ", best_found_cost)
+	engine = Search(my_reader, my_settings)
 	
+	#solution, cost = engine.local_search()
+	#print("\n:: LOCAL SEARCH ::")
+	#print("best objective found: ", cost)
+	#print("solution: ", solution.str_representation)
+
+	generator = SolutionGenerator(my_reader)
+	initial_solution = generator.build_trivial_solution()
+
+	solution, cost = engine.simulated_annealing(initial_solution)
+	print("\n:: SIMULATED ANNEALING ::")
+	print("best objective found: ", cost)
+	print("solution: ", solution.str_representation)
+
 	############################################################################
 
 
