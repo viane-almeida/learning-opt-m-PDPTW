@@ -51,26 +51,7 @@ class TestSolutionGenerator(unittest.TestCase):
         generator = SolutionGenerator(my_reader)
 
         assert True
-
-    def test_create_one_solution(self):
-        input_file_name = "input/Call_7_Vehicle_3.txt"
-        my_reader = InstanceReader()
-        my_reader.read_instance(input_file_name)
-        
-        generator = SolutionGenerator(my_reader)
-        generator.try_creating_n_random_solutions(1)
-
-        assert True
-
-    def test_try_creating_n_random_solutions(self):
-        input_file_name = "input/Call_7_Vehicle_3.txt"
-        my_reader = InstanceReader()
-        my_reader.read_instance(input_file_name)
-        
-        generator = SolutionGenerator(my_reader)
-        generator.try_creating_n_random_solutions(100)
-
-        assert True
+    
 
     def test_one_reinsert_operator(self):
         input_file_name = "input/Call_7_Vehicle_3.txt"

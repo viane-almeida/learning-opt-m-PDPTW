@@ -34,24 +34,16 @@ __email__ = "viane202@hotmail.com"
 
 from .instance_reader import InstanceReader
 
+import math
+
 class Solution:
     """
     Class for representing a mPDPTW solution
     """
 
-    def __init__(self):
-        """
-        Default constructor method, represents a void object
-        """
-        # TO DO: think what to do here
-        self.vehicles_num_calls_taken = []
-        self.vehicles_call_sequence = []
-        self.vehicles_node_routes = []
-
-
     def __init__(self,
                  input_instance: InstanceReader,
-                 short_solution_form: str,
+                 short_solution_form: str = "",
                  logging = False):
         """
         Constructor building an object from a string representing a solution.
@@ -75,73 +67,88 @@ class Solution:
 
         # saves the reference to the input instance object
         self.instance = input_instance
-        self.str_representation = short_solution_form
 
-        self.vehicles_num_calls_taken = [-1] * (self.instance.num_vehicles+1)
-        self.calls_not_taken = []
+        if short_solution_form == "":
+            self.vehicles_num_calls_taken = []
+            self.vehicles_call_sequence = []
+            self.vehicles_node_routes = []
 
-        # a list containing: a list of pickup and delivery calls for each vehicle
-        self.vehicles_call_sequence = [-1] * (self.instance.num_vehicles+1)
-        
-        # a list containing: a list with the sequence of nodes visited for each vehicle
-        self.vehicles_node_routes = [-1] * (self.instance.num_vehicles+1)
+            self.cost_already_computed = False
+            self.cost = math.inf
 
-        ########################################################################
-        # 1. BREAK THE GIVEN STRING BY VEHICLES
+            self.str_representation = "-"
 
-        broken = [ [] for i in range(self.instance.num_vehicles+1) ]
+        else:
+            self.str_representation = short_solution_form
 
-        current = 0
-        for token in short_solution_form.split():
-            if token != "0":
-                broken[current].append(token)
-            else:
-                current += 1
+            self.cost_already_computed = False
+            self.cost = math.inf
 
-        if logging:
-            print("reading solution from: ")
-            print(broken)
+            self.vehicles_num_calls_taken = [-1] * (self.instance.num_vehicles+1)
+            self.calls_not_taken = []
 
-        if len(broken) != self.instance.num_vehicles + 1:
-            print("ERROR: invalid solution - number of vehicles not as expected")
-            quit()
+            # a list containing: a list of pickup and delivery calls for each vehicle
+            self.vehicles_call_sequence = [-1] * (self.instance.num_vehicles+1)
+            
+            # a list containing: a list with the sequence of nodes visited for each vehicle
+            self.vehicles_node_routes = [-1] * (self.instance.num_vehicles+1)
 
-        for v in range(self.instance.num_vehicles):
-            # vehicles index starts from 1
-            self.vehicles_call_sequence[v+1] = [int(x) for x in broken[v]]
+            ########################################################################
+            # 1. BREAK THE GIVEN STRING BY VEHICLES
 
-        ########################################################################
-        # 2. THE STRING ENDS (AFTER LAST ZERO) WITH THE SPOT CHARTED CALLS
-        self.calls_not_taken = [int(x) for x in broken[self.instance.num_vehicles]]
+            broken = [ [] for i in range(self.instance.num_vehicles+1) ]
 
-        ########################################################################
-        # 3. NUMBER OF CALLS TAKEN
-        for v in range(1,self.instance.num_vehicles+1):
-            l = self.vehicles_call_sequence[v]
-            self.vehicles_num_calls_taken[v] = int(len(l)/2)
-
-        ########################################################################
-        # 4. FIND VISITED NODES BY THE SEQUENCE OF CALLS TAKEN BY EACH VEHICLE
-        for v in range(1, self.instance.num_vehicles+1):
-
-            # mask flagging nodes already visited in the route
-            returning = [False] * (self.instance.num_calls+1)
-
-            # home node of vehicle (starting position)
-            home = self.instance.vehicle_home_node[v]
-            self.vehicles_node_routes[v] = [home]
-
-            # iterate over nodes corresponding to call pickup/delivery
-            for c in self.vehicles_call_sequence[v]:
-                if(returning[c] == False):
-                    returning[c] = True
-                    self.vehicles_node_routes[v].append(self.instance.call_origin[c])
+            current = 0
+            for token in short_solution_form.split():
+                if token != "0":
+                    broken[current].append(token)
                 else:
-                    self.vehicles_node_routes[v].append(self.instance.call_destination[c])
+                    current += 1
 
-        if logging:
-            print("routes of each vehicle:")
-            print(self.vehicles_node_routes[1:])
+            if logging:
+                print("reading solution from: ")
+                print(broken)
+
+            if len(broken) != self.instance.num_vehicles + 1:
+                print("ERROR: invalid solution - number of vehicles not as expected")
+                quit()
+
+            for v in range(self.instance.num_vehicles):
+                # vehicles index starts from 1
+                self.vehicles_call_sequence[v+1] = [int(x) for x in broken[v]]
+
+            ########################################################################
+            # 2. THE STRING ENDS (AFTER LAST ZERO) WITH THE SPOT CHARTED CALLS
+            self.calls_not_taken = [int(x) for x in broken[self.instance.num_vehicles]]
+
+            ########################################################################
+            # 3. NUMBER OF CALLS TAKEN
+            for v in range(1,self.instance.num_vehicles+1):
+                l = self.vehicles_call_sequence[v]
+                self.vehicles_num_calls_taken[v] = int(len(l)/2)
+
+            ########################################################################
+            # 4. FIND VISITED NODES BY THE SEQUENCE OF CALLS TAKEN BY EACH VEHICLE
+            for v in range(1, self.instance.num_vehicles+1):
+
+                # mask flagging nodes already visited in the route
+                returning = [False] * (self.instance.num_calls+1)
+
+                # home node of vehicle (starting position)
+                home = self.instance.vehicle_home_node[v]
+                self.vehicles_node_routes[v] = [home]
+
+                # iterate over nodes corresponding to call pickup/delivery
+                for c in self.vehicles_call_sequence[v]:
+                    if(returning[c] == False):
+                        returning[c] = True
+                        self.vehicles_node_routes[v].append(self.instance.call_origin[c])
+                    else:
+                        self.vehicles_node_routes[v].append(self.instance.call_destination[c])
+
+            if logging:
+                print("routes of each vehicle:")
+                print(self.vehicles_node_routes[1:])
 
 
     def fleet_cost(self, include_node_costs=True):
@@ -312,5 +319,10 @@ class Solution:
         If the argument is False, we do not include the load/unload costs at
         each node.
         """
+
+        if self.cost_already_computed is False:
+            # first time this method is called only
+            self.cost = self.fleet_cost(include_node_costs) + self.spotcharter_cost()
+            self.cost_already_computed = True
         
-        return(self.fleet_cost(include_node_costs) + self.spotcharter_cost())
+        return self.cost

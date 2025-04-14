@@ -45,6 +45,22 @@ from src.search import Search
 
 class TestSearch(unittest.TestCase):
 
+    def test_random_search(self):
+        input_file_name = "input/Call_7_Vehicle_3.txt"
+        seed_idx = 2
+
+        my_reader = InstanceReader()
+        my_reader.read_instance(input_file_name)
+        
+        my_settings = Settings()
+        my_settings.init_random_number_gen(seed_idx)
+        
+        engine = Search(my_reader, my_settings)
+        engine.random_search(100)
+
+        assert True
+
+
     def test_local_search(self):
 
         input_file_name = "input/Call_7_Vehicle_3.txt"

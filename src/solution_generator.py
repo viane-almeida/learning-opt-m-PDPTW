@@ -112,53 +112,6 @@ class SolutionGenerator:
         return sequence_of_calls
 
 
-    def try_creating_n_random_solutions(self, n: int):
-        """
-        TO DO
-        """
-
-        # try creating n solutions, return a list of the feasible ones (NB! as Solution objects, not strings)
-
-        solutions = []
-        
-        for i in range(n):
-            tmp = self.create_one_random_solution()
-
-            solution = Solution(self.instance, tmp)
-
-            if solution.is_feasible():
-                solutions.append(solution)
-            
-        #print(solutions)
-        
-        return solutions
-
-    def report_best_solution_found(self,
-                                   solutions: list[Solution]) -> int:
-        """
-        Returns a tuple containint the cost of the best solution in the given
-        collection and the index of the corresponding solution the list.
-        """
-
-        if len(solutions) > 0:
-
-            # will traverse the list and find the solution of mininum total cost
-            min_val = solutions[0].total_cost()
-            min_idx = 0
-
-            for i in range(1, len(solutions)):
-                tmp = solutions[i].total_cost()
-                if tmp < min_val:
-                    min_val = tmp
-                    min_idx = i
-
-            return (min_val, min_idx)
-
-        else:
-            return None
-
-
-
     def build_trivial_solution(self):
 
         """
@@ -177,6 +130,7 @@ class SolutionGenerator:
             str_repr += " "
 
         #print("initial solution as a string:", str_repr)
+        #print("cost of the initial solution:", Solution(self.instance, str_repr).total_cost())
         return Solution(self.instance, str_repr)
 
     def one_reinsert_operator(self,
